@@ -1,77 +1,96 @@
-#!/usr/bin/python3
-
-
-import sys
 import datetime
 import math
-
 import os
 import time
+from os.path import join
+from sys import argv, stderr
+
+import RPi.GPIO as GPIO
+import smbus2 as smbus
+
+from .config import CONFIG_DIR
+from .cli import Args, CliParameters, Cli
 
 # Initialize I2C Bus
-import smbus
-import RPi.GPIO as GPIO
-
 rev = GPIO.RPI_REVISION
 if rev == 2 or rev == 3:
-    bus=smbus.SMBus(1)
+    bus = smbus.SMBus(1)
 else:
-    bus=smbus.SMBus(0)
+    bus = smbus.SMBus(0)
 
 
-ADDR_RTC=0x51
+ADDR_RTC = 0x51
 
 #################
 # Common/Helpers
 #################
 
-RTC_CONFIGFILE = "/etc/argoneonrtc.conf"
+RTC_CONFIGFILE = join(CONFIG_DIR, 'rtc.conf')
 
 RTC_ALARM_BIT = 0x8
 RTC_TIMER_BIT = 0x4
 
-# PCF8563 number system Binary Coded Decimal (BCD)
 
-# BCD to Decimal
 def numBCDtoDEC(val):
+    """
+    PCF8563 number system Binary Coded Decimal (BCD)
+    BCD to Decimal
+    """
     return (val & 0xf)+(((val >> 4) & 0xf)*10)
 
-# Decimal to BCD
+
 def numDECtoBCD(val):
-    return (math.floor(val/10)<<4) + (val % 10)
-    
-# Check if Event Bit is raised
+    """
+    Decimal to BCD
+    """
+    return (math.floor(val/10) << 4) + (val % 10)
+
+
 def hasRTCEventFlag(flagbit):
-    bus.write_byte(ADDR_RTC,1)
+    """
+    Check if Event Bit is raised
+    """
+    bus.write_byte(ADDR_RTC, 1)
     out = bus.read_byte_data(ADDR_RTC, 1)
     return (out & flagbit) != 0
 
-# Clear Event Bit if raised
+
 def clearRTCEventFlag(flagbit):
+    """
+    Clear Event Bit if raised
+    """
     out = bus.read_byte_data(ADDR_RTC, 1)
     if (out & flagbit) != 0:
         # Unset only if fired
-        bus.write_byte_data(ADDR_RTC, 1, out&(0xff-flagbit))
+        bus.write_byte_data(ADDR_RTC, 1, out & (0xff-flagbit))
         return True
     return False
 
-# Enable Event Flag
+
 def setRTCEventFlag(flagbit, enabled):
+    """
+    Enable Event Flag
+    """
+
     # 0x10 = TI_TP flag, 0 by default
     ti_tp_flag = 0x10
     # flagbit=0x4 for timer flag, 0x1 for enable timer flag
     # flagbit=0x8 for alarm flag, 0x2 for enable alarm flag
-    enableflagbit = flagbit>>2
+    enableflagbit = flagbit >> 2
     disableflagbit = 0
     if enabled == False:
         disableflagbit = enableflagbit
         enableflagbit = 0
 
     out = bus.read_byte_data(ADDR_RTC, 1)
-    bus.write_byte_data(ADDR_RTC, 1, (out&(0xff-flagbit-disableflagbit - ti_tp_flag))|enableflagbit)
+    bus.write_byte_data(ADDR_RTC, 1, (out & (
+        0xff-flagbit-disableflagbit - ti_tp_flag)) | enableflagbit)
 
-# Helper method to add proper suffix to numbers
+
 def getNumberSuffix(numval):
+    """
+    Helper method to add proper suffix to numbers
+    """
     onesvalue = numval % 10
     if onesvalue == 1:
         return "st"
@@ -81,8 +100,11 @@ def getNumberSuffix(numval):
         return "rd"
     return "th"
 
-# Describe Timer Setting
+
 def describeTimer(showsetting):
+    """
+    Describe Timer Setting
+    """
     out = bus.read_byte_data(ADDR_RTC, 14)
     tmp = out & 3
     if tmp == 3:
@@ -141,10 +163,14 @@ def describeHourMinute(hour, minute):
 
     return outstr+ampmstr
 
-# Describe Schedule Parameter Values
+
 def describeSchedule(monthlist, weekdaylist, datelist, hourlist, minutelist):
-    weekdaynamelist = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] 
-    monthnamelist = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] 
+    """
+    Describe Schedule Parameter Values
+    """
+    weekdaynamelist = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    monthnamelist = ["Jan", "Feb", "Mar", "Apr", "May",
+                     "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
     curprefix = ""
     hasDate = False
@@ -157,12 +183,16 @@ def describeSchedule(monthlist, weekdaylist, datelist, hourlist, minutelist):
                 hasDate = True
                 if curmonth >= 0:
                     hasMonth = True
-                    monthdatestr = monthdatestr + "," + monthnamelist[curmonth-1]+" "+str(curdate) + getNumberSuffix(curdate)
+                    monthdatestr = monthdatestr + "," + \
+                        monthnamelist[curmonth-1]+" " + \
+                        str(curdate) + getNumberSuffix(curdate)
                 else:
-                    monthdatestr = monthdatestr + ","+str(curdate) + getNumberSuffix(curdate)
+                    monthdatestr = monthdatestr + "," + \
+                        str(curdate) + getNumberSuffix(curdate)
             else:
                 if curmonth >= 0:
-                    monthdatestr = monthdatestr + "," + monthnamelist[curmonth-1]
+                    monthdatestr = monthdatestr + \
+                        "," + monthnamelist[curmonth-1]
 
     if len(monthdatestr) > 0:
         foundvalue = True
@@ -200,11 +230,13 @@ def describeSchedule(monthlist, weekdaylist, datelist, hourlist, minutelist):
                 hasHour = True
                 if curminute >= 0:
                     hasMinute = True
-                hourminstr = hourminstr + "," + describeHourMinute(curhour, curminute)
+                hourminstr = hourminstr + "," + \
+                    describeHourMinute(curhour, curminute)
             elif curminute >= 0:
                 hasMinute = True
-                hourminstr = hourminstr + "," + str(curminute) + getNumberSuffix(curminute)
-    
+                hourminstr = hourminstr + "," + \
+                    str(curminute) + getNumberSuffix(curminute)
+
     if len(hourminstr) > 0:
         foundvalue = True
         # Remove Leading Comma
@@ -230,8 +262,10 @@ def describeSchedule(monthlist, weekdaylist, datelist, hourlist, minutelist):
     return (curprefix + monthdatestr + weekdaystr + hourminstr).strip()
 
 
-# Describe Alarm Setting
 def describeAlarm():
+    """
+    Describe Alarm Setting
+    """
     minute = -1
     hour = -1
     date = -1
@@ -258,20 +292,25 @@ def describeAlarm():
 
     # Convert from UTC
     utcschedule = describeSchedule([-1], [weekday], [date], [hour], [minute])
-    weekday, date, hour, minute = convertAlarmTimezone(weekday, date, hour, minute, False)
+    weekday, date, hour, minute = convertAlarmTimezone(
+        weekday, date, hour, minute, False)
 
     return describeSchedule([-1], [weekday], [date], [hour], [minute]) + " Local (RTC Schedule: "+utcschedule+" UTC)"
 
 
-# Describe Control Flags
 def describeControlRegisters():
+    """
+    Describe Control Flags
+    """
     out = bus.read_byte_data(ADDR_RTC, 1)
 
     print("\n***************")
     print("Control Status 2")
     print("\tTI_TP Flag:", ((out & 0x10) != 0))
-    print("\tAlarm Flag:", ((out & RTC_ALARM_BIT) != 0),"( Enabled =", (out & (RTC_ALARM_BIT>>2)) != 0, ")")
-    print("\tTimer Flag:", ((out & RTC_TIMER_BIT) != 0),"( Enabled =", (out & (RTC_TIMER_BIT>>2)) != 0, ")")
+    print("\tAlarm Flag:", ((out & RTC_ALARM_BIT) != 0),
+          "( Enabled =", (out & (RTC_ALARM_BIT >> 2)) != 0, ")")
+    print("\tTimer Flag:", ((out & RTC_TIMER_BIT) != 0),
+          "( Enabled =", (out & (RTC_TIMER_BIT >> 2)) != 0, ")")
 
     print("Alarm Setting:")
     print("\t"+describeAlarm())
@@ -286,13 +325,15 @@ def describeControlRegisters():
 # Alarm
 #########
 
-# Alarm to UTC/Local time
 def convertAlarmTimezone(weekday, date, hour, minute, toutc):
+    """
+    Alarm to UTC/Local time
+    """
     utcdiffsec = getLocaltimeOffset().seconds
     if toutc == False:
         utcdiffsec = utcdiffsec*(-1)
 
-    utcdiffsec = utcdiffsec - (utcdiffsec%60)
+    utcdiffsec = utcdiffsec - (utcdiffsec % 60)
     utcdiffmin = utcdiffsec % 3600
     utcdiffhour = int((utcdiffsec - utcdiffmin)/3600)
     utcdiffmin = int(utcdiffmin/60)
@@ -306,7 +347,7 @@ def convertAlarmTimezone(weekday, date, hour, minute, toutc):
         elif minute > 59:
             addhour = 1
             minute = minute - 60
-    
+
     addday = 0
     if hour >= 0:
         hour = hour - utcdiffhour
@@ -341,26 +382,41 @@ def convertAlarmTimezone(weekday, date, hour, minute, toutc):
 
     return [weekday, date, hour, minute]
 
-# Check if RTC Alarm Flag is ON
+
 def hasRTCAlarmFlag():
+    """
+    Check if RTC Alarm Flag is ON
+    """
     return hasRTCEventFlag(RTC_ALARM_BIT)
 
-# Clear RTC Alarm Flag
+
 def clearRTCAlarmFlag():
+    """
+    Clear RTC Alarm Flag
+    """
     return clearRTCEventFlag(RTC_ALARM_BIT)
 
-# Enables RTC Alarm Register
-def enableAlarm(registeraddr, value, mask):
-    # 0x00 is Enabled
-    bus.write_byte_data(ADDR_RTC, registeraddr, (numDECtoBCD(value)&mask))
 
-# Disables RTC Alarm Register
+def enableAlarm(registeraddr, value, mask):
+    """
+    Enables RTC Alarm Register
+    """
+    # 0x00 is Enabled
+    bus.write_byte_data(ADDR_RTC, registeraddr, (numDECtoBCD(value) & mask))
+
+
 def disableAlarm(registeraddr):
+    """
+    Disables RTC Alarm Register
+    """
     # 0x80 is disabled
     bus.write_byte_data(ADDR_RTC, registeraddr, 0x80)
 
-# Removes all alarm settings
+
 def removeRTCAlarm():
+    """
+    Removes all alarm settings
+    """
     setRTCEventFlag(RTC_ALARM_BIT, False)
 
     disableAlarm(9)
@@ -368,8 +424,11 @@ def removeRTCAlarm():
     disableAlarm(11)
     disableAlarm(12)
 
-# Set RTC Alarm (Negative values ignored)
+
 def setRTCAlarm(enableflag, weekday, date, hour, minute):
+    """
+    Set RTC Alarm (Negative values ignored)
+    """
     if date < 1 and weekday < 0 and hour < 0 and minute < 0:
         return -1
     elif minute > 59:
@@ -382,7 +441,8 @@ def setRTCAlarm(enableflag, weekday, date, hour, minute):
         return -1
 
     # Convert to UTC
-    weekday, date, hour, minute = convertAlarmTimezone(weekday, date, hour, minute, True)
+    weekday, date, hour, minute = convertAlarmTimezone(
+        weekday, date, hour, minute, True)
 
     clearRTCAlarmFlag()
     setRTCEventFlag(RTC_ALARM_BIT, enableflag)
@@ -409,44 +469,60 @@ def setRTCAlarm(enableflag, weekday, date, hour, minute):
 
     return 0
 
-# Set RTC Hourly Alarm
+
 def setRTCAlarmHourly(enableflag, minute):
+    """
+    Set RTC Hourly Alarm
+    """
     return setRTCAlarm(enableflag, -1, -1, -1, minute)
 
-# Set RTC Daily Alarm
+
 def setRTCAlarmDaily(enableflag, hour, minute):
+    """
+    Set RTC Daily Alarm
+    """
     return setRTCAlarm(enableflag, -1, -1, hour, minute)
 
-# Set RTC Weekly Alarm
+
 def setRTCAlarmWeekly(enableflag, dayofweek, hour, minute):
+    """
+    Set RTC Weekly Alarm
+    """
     return setRTCAlarm(enableflag, dayofweek, -1, hour, minute)
 
-# Set RTC Monthly Alarm
+
 def setRTCAlarmMonthly(enableflag, date, hour, minute):
+    """
+    Set RTC Monthly Alarm
+    """
     return setRTCAlarm(enableflag, -1, date, hour, minute)
 
 #########
 # Timer
 #########
 
-# Check if RTC Timer Flag is ON
+
 def hasRTCTimerFlag():
+    # Check if RTC Timer Flag is ON
     return hasRTCEventFlag(RTC_TIMER_BIT)
 
-# Clear RTC Timer Flag
+
 def clearRTCTimerFlag():
+    # Clear RTC Timer Flag
     return clearRTCEventFlag(RTC_TIMER_BIT)
 
-# Remove RTC Timer Setting
+
 def removeRTCTimer():
+    # Remove RTC Timer Setting
     setRTCEventFlag(RTC_TIMER_BIT, False)
 
     # Timer disable and Set Timer frequency to lowest (0x3=1 per minute)
     bus.write_byte_data(ADDR_RTC, 14, 3)
     bus.write_byte_data(ADDR_RTC, 15, 0)
 
-# Set RTC Timer Interval
-def setRTCTimerInterval(enableflag, value, inSeconds = False):
+
+def setRTCTimerInterval(enableflag, value, inSeconds=False):
+    # Set RTC Timer Interval
     if value > 255 or value < 1:
         return -1
     clearRTCTimerFlag()
@@ -458,32 +534,35 @@ def setRTCTimerInterval(enableflag, value, inSeconds = False):
         timerconfigFlag = 0x82
 
     bus.write_byte_data(ADDR_RTC, 14, timerconfigFlag)
-    bus.write_byte_data(ADDR_RTC, 15, numDECtoBCD(value&0xff))
+    bus.write_byte_data(ADDR_RTC, 15, numDECtoBCD(value & 0xff))
     return 0
 
 #############
 # Date/Time
 #############
 
-# Get local time vs UTC
+
 def getLocaltimeOffset():
+    # Get local time vs UTC
     localdatetime = datetime.datetime.now()
-    utcdatetime = datetime.datetime.fromtimestamp(localdatetime.timestamp(), datetime.timezone.utc)
+    utcdatetime = datetime.datetime.fromtimestamp(
+        localdatetime.timestamp(), datetime.timezone.utc)
     # Remove TZ info to allow subtraction
-    utcdatetime = utcdatetime.replace(tzinfo = None)
+    utcdatetime = utcdatetime.replace(tzinfo=None)
 
     return localdatetime - utcdatetime
 
-# Returns RTC timestamp as datetime object
+
 def getRTCdatetime():
+    # Returns RTC timestamp as datetime object
 
     # Data Sheet Recommends to read this manner (instead of from registers)
-    bus.write_byte(ADDR_RTC,2)
+    bus.write_byte(ADDR_RTC, 2)
 
     out = bus.read_byte(ADDR_RTC)
     out = numBCDtoDEC(out & 0x7f)
     second = out
-    #warningflag = (out & 0x80)>>7
+    # warningflag = (out & 0x80)>>7
 
     out = bus.read_byte(ADDR_RTC)
     minute = numBCDtoDEC(out & 0x7f)
@@ -495,7 +574,7 @@ def getRTCdatetime():
     date = numBCDtoDEC(out & 0x3f)
 
     out = bus.read_byte(ADDR_RTC)
-    #weekDay = numBCDtoDEC(out & 7)
+    # weekDay = numBCDtoDEC(out & 7)
 
     out = bus.read_byte(ADDR_RTC)
     month = numBCDtoDEC(out & 0x1f)
@@ -503,7 +582,7 @@ def getRTCdatetime():
     out = bus.read_byte(ADDR_RTC)
     year = numBCDtoDEC(out)
 
-    #print({"year":year, "month": month, "date": date, "hour": hour, "minute": minute, "second": second})
+    # print({"year":year, "month": month, "date": date, "hour": hour, "minute": minute, "second": second})
 
     if month == 0:
         # Reset, uninitialized RTC
@@ -516,8 +595,9 @@ def getRTCdatetime():
     except:
         return datetime.datetime(2000, 1, 1, 0, 0, 0)
 
-# set RTC time using datetime object (Local time)
+
 def setRTCdatetime(localdatetime):
+    # set RTC time using datetime object (Local time)
     # Set local time to UTC
     localdatetime = localdatetime - getLocaltimeOffset()
 
@@ -529,28 +609,29 @@ def setRTCdatetime(localdatetime):
         weekDay = weekDay + 1
 
     # Write to respective registers
-    bus.write_byte_data(ADDR_RTC,2,numDECtoBCD(localdatetime.second))
-    bus.write_byte_data(ADDR_RTC,3,numDECtoBCD(localdatetime.minute))
-    bus.write_byte_data(ADDR_RTC,4,numDECtoBCD(localdatetime.hour))
-    bus.write_byte_data(ADDR_RTC,5,numDECtoBCD(localdatetime.day))
-    bus.write_byte_data(ADDR_RTC,6,numDECtoBCD(weekDay))
-    bus.write_byte_data(ADDR_RTC,7,numDECtoBCD(localdatetime.month))
+    bus.write_byte_data(ADDR_RTC, 2, numDECtoBCD(localdatetime.second))
+    bus.write_byte_data(ADDR_RTC, 3, numDECtoBCD(localdatetime.minute))
+    bus.write_byte_data(ADDR_RTC, 4, numDECtoBCD(localdatetime.hour))
+    bus.write_byte_data(ADDR_RTC, 5, numDECtoBCD(localdatetime.day))
+    bus.write_byte_data(ADDR_RTC, 6, numDECtoBCD(weekDay))
+    bus.write_byte_data(ADDR_RTC, 7, numDECtoBCD(localdatetime.month))
 
     # Year is from 2000
-    bus.write_byte_data(ADDR_RTC,8,numDECtoBCD(localdatetime.year-2000))
+    bus.write_byte_data(ADDR_RTC, 8, numDECtoBCD(localdatetime.year-2000))
 
-# Sync Time to RTC Time (for Daemon use)
+
 def syncSystemTime():
+    # Sync Time to RTC Time (for Daemon use)
     rtctime = getRTCdatetime()
     os.system("date -s '"+rtctime.isoformat()+"' >/dev/null 2>&1")
 
 
 #########
-# Config 
+# Config
 #########
 
-# Load config value as array of integers
 def getConfigValue(valuestr):
+    # Load config value as array of integers
     try:
         if valuestr == "*":
             return [-1]
@@ -560,8 +641,9 @@ def getConfigValue(valuestr):
     except:
         return [-1]
 
-# Load config line data as array of Command schedule
+
 def newCommandSchedule(curline):
+    # Load config line data as array of Command schedule
     result = []
     linedata = curline.split(" ")
     if len(linedata) < 6:
@@ -570,8 +652,8 @@ def newCommandSchedule(curline):
     minutelist = getConfigValue(linedata[0])
     hourlist = getConfigValue(linedata[1])
     datelist = getConfigValue(linedata[2])
-    #monthlist = getConfigValue(linedata[3])
-    monthlist = [-1] # Certain edge cases will not be handled properly
+    # monthlist = getConfigValue(linedata[3])
+    monthlist = [-1]  # Certain edge cases will not be handled properly
     weekdaylist = getConfigValue(linedata[4])
 
     cmd = ""
@@ -586,12 +668,14 @@ def newCommandSchedule(curline):
             for curdate in datelist:
                 for curmonth in monthlist:
                     for curweekday in weekdaylist:
-                        result.append({ "minute": curmin, "hour": curhour, "date": curdate, "month":curmonth, "weekday": curweekday, "cmd":cmd })
+                        result.append({"minute": curmin, "hour": curhour, "date": curdate,
+                                      "month": curmonth, "weekday": curweekday, "cmd": cmd})
 
     return result
 
-# Save updated config file
+
 def saveConfigList(fname, configlist):
+    # Save updated config file
     f = open(fname, "w")
     f.write("#\n")
     f.write("# Argon RTC Configuration\n")
@@ -612,15 +696,17 @@ def saveConfigList(fname, configlist):
         f.write(config+"\n")
     f.close()
 
-# Remove config line
+
 def removeConfigEntry(fname, entryidx):
+    # Remove config line
     configlist = loadConfigList(fname)
     if len(configlist) > entryidx:
         configlist.pop(entryidx)
     saveConfigList(fname, configlist)
 
-# Load config list (removes invalid data)
+
 def loadConfigList(fname):
+    # Load config list (removes invalid data)
     try:
         result = []
         with open(fname, "r") as fp:
@@ -629,7 +715,8 @@ def loadConfigList(fname):
                     continue
                 curline = curline.strip().replace('\t', ' ')
                 # Handle special characters that get encoded
-                tmpline = "".join([c if 0x20<=ord(c) and ord(c)<=0x7e else "" for c in curline])
+                tmpline = "".join([c if 0x20 <= ord(c) and ord(
+                    c) <= 0x7e else "" for c in curline])
 
                 if not tmpline:
                     continue
@@ -644,8 +731,9 @@ def loadConfigList(fname):
     except:
         return []
 
-# Form Command Schedule list from config list 
+
 def formCommandScheduleList(configlist):
+    # Form Command Schedule list from config list
     try:
         result = []
         for config in configlist:
@@ -654,8 +742,9 @@ def formCommandScheduleList(configlist):
     except:
         return []
 
-# Describe config list entry
+
 def describeConfigListEntry(configlistitem):
+    # Describe config list entry
     linedata = configlistitem.split(" ")
     if len(linedata) < 6:
         return ""
@@ -663,8 +752,8 @@ def describeConfigListEntry(configlistitem):
     minutelist = getConfigValue(linedata[0])
     hourlist = getConfigValue(linedata[1])
     datelist = getConfigValue(linedata[2])
-    #monthlist = getConfigValue(linedata[3])
-    monthlist = [-1] # Certain edge cases will not be handled properly
+    # monthlist = getConfigValue(linedata[3])
+    monthlist = [-1]  # Certain edge cases will not be handled properly
     weekdaylist = getConfigValue(linedata[4])
 
     cmd = ""
@@ -680,8 +769,9 @@ def describeConfigListEntry(configlistitem):
 
     return cmd+" | "+describeSchedule(monthlist, weekdaylist, datelist, hourlist, minutelist)
 
-# Describe config list and show indices
+
 def describeConfigList(fname):
+    # Describe config list and show indices
     # 1 is reserved for New schedule
     ctr = 2
     configlist = loadConfigList(fname)
@@ -693,8 +783,9 @@ def describeConfigList(fname):
     if ctr == 2:
         print("  No Existing Schedules")
 
-# Check Command schedule if it should fire for the give time
+
 def checkDateForCommandSchedule(commandschedule, datetimeobj):
+    # Check Command schedule if it should fire for the give time
     testminute = commandschedule.get("minute", -1)
     testhour = commandschedule.get("hour", -1)
     testdate = commandschedule.get("date", -1)
@@ -718,8 +809,9 @@ def checkDateForCommandSchedule(commandschedule, datetimeobj):
                             return True
     return False
 
-# Get current command
+
 def getCommandForTime(commandschedulelist, datetimeobj, checkcmd):
+    # Get current command
     ctr = 0
     while ctr < len(commandschedulelist):
         testcmd = commandschedulelist[ctr].get("cmd", "")
@@ -729,8 +821,9 @@ def getCommandForTime(commandschedulelist, datetimeobj, checkcmd):
         ctr = ctr + 1
     return ""
 
-# Get Last Date of Month
+
 def getLastMonthDate(year, month):
+    # Get Last Date of Month
     if month < 12:
         testtime = datetime.datetime(year, month+1, 1)
     else:
@@ -738,8 +831,9 @@ def getLastMonthDate(year, month):
     testtime = testtime - datetime.timedelta(days=1)
     return testtime.day
 
-# Increment to the next iteration of command schedule
+
 def incrementCommandScheduleTime(commandschedule, testtime, addmode):
+    # Increment to the next iteration of command schedule
     testminute = commandschedule.get("minute", -1)
     testhour = commandschedule.get("hour", -1)
     testdate = commandschedule.get("date", -1)
@@ -803,8 +897,9 @@ def incrementCommandScheduleTime(commandschedule, testtime, addmode):
         else:
             return testtime.replace(year=(testtime.year+1))
 
-# Set Next Alarm on RTC
+
 def setNextAlarm(commandschedulelist, prevdatetime):
+    # Set Next Alarm on RTC
     curtime = datetime.datetime.now()
     if prevdatetime > curtime:
         return prevdatetime
@@ -874,7 +969,8 @@ def setNextAlarm(commandschedulelist, prevdatetime):
                         invaliddata = True
             if invaliddata == False:
                 try:
-                    testtime = datetime.datetime(tmpyear, tmpmonth, tmpdate, tmphour, tmpminute)
+                    testtime = datetime.datetime(
+                        tmpyear, tmpmonth, tmpdate, tmphour, tmpminute)
                 except:
                     # Force time diff
                     testtime = curtime - datetime.timedelta(hours=1)
@@ -890,7 +986,6 @@ def setNextAlarm(commandschedulelist, prevdatetime):
                     weekDay = 0
                 else:
                     weekDay = weekDay + 1
-
 
                 if weekDay != testweekday or tmptimediff > 0:
                     # Resulting 0-ed time will be <= the testtime
@@ -919,7 +1014,8 @@ def setNextAlarm(commandschedulelist, prevdatetime):
             if tmptimediff > 0:
                 # Find next iteration that's greater than the current time (Day of Week check already handled)
                 while tmptimediff >= 0:
-                    testtime = incrementCommandScheduleTime(commandschedulelist[ctr], testtime, "minute")
+                    testtime = incrementCommandScheduleTime(
+                        commandschedulelist[ctr], testtime, "minute")
                     tmptimediff = (curtime - testtime).total_seconds()
 
             if nextcommandtime > testtime and tmptimediff < 0:
@@ -927,88 +1023,128 @@ def setNextAlarm(commandschedulelist, prevdatetime):
                 nextcommandtime = testtime
                 foundnextcmd = True
 
-
         ctr = ctr + 1
     if foundnextcmd == True:
         # Schedule Alarm
-        if nextcommandschedule.get("weekday", -1) >=0 or nextcommandschedule.get("date", -1) > 0:
+        if nextcommandschedule.get("weekday", -1) >= 0 or nextcommandschedule.get("date", -1) > 0:
             # Set alarm based on hour/minute of next occurrence to factor in timezone changes if any
-            setRTCAlarm(True, nextcommandschedule.get("weekday", -1), nextcommandschedule.get("date", -1), nextcommandtime.hour, nextcommandtime.minute)
+            setRTCAlarm(True, nextcommandschedule.get("weekday", -1), nextcommandschedule.get(
+                "date", -1), nextcommandtime.hour, nextcommandtime.minute)
         else:
             # no date,weekday involved just shift the hour and minute accordingly
-            setRTCAlarm(True, nextcommandschedule.get("weekday", -1), nextcommandschedule.get("date", -1), nextcommandschedule.get("hour", -1), nextcommandschedule.get("minute", -1))
+            setRTCAlarm(True, nextcommandschedule.get("weekday", -1), nextcommandschedule.get(
+                "date", -1), nextcommandschedule.get("hour", -1), nextcommandschedule.get("minute", -1))
         return nextcommandtime
     else:
         removeRTCAlarm()
     # This will ensure that this will be replaced next iteration
     return curtime
 
-######
-if len(sys.argv) > 1:
-    cmd = sys.argv[1].upper()
 
-    # Enable Alarm/Timer Flags
-    enableflag = True
+main = Cli('Operates the Real-Time Clock (RTC) on the Argon EON.')
 
-    if cmd == "CLEAN":
-        removeRTCAlarm()
-        removeRTCTimer()
-    elif cmd == "SHUTDOWN":
+
+@main.command('Remove RTC timers and alarms.')
+def cmd_clean():
+    removeRTCAlarm()
+    removeRTCTimer()
+
+
+@main.command('Turn off RTC timers and alarms.')
+def cmd_shutdown():
+    clearRTCAlarmFlag()
+    clearRTCTimerFlag()
+
+
+@main.command("Show the Argon's current RTC clock.")
+def cmd_getrtctime():
+    print("RTC Time:", getRTCdatetime())
+
+
+@main.command("Synchronize Argon's RTC clock with the Pi's system clock.")
+def cmd_getrtctime(_):
+    setRTCdatetime(datetime.datetime.now())
+    print("RTC Time:", getRTCdatetime())
+
+
+@main.command('Print currently configured schedules.')
+def cmd_getschedulelist():
+    describeConfigList(RTC_CONFIGFILE)
+
+
+class ScheduleArgs(Args):
+    n: int
+
+
+schedule_params: CliParameters = {
+    'n': {'type': int, 'help': 'The schedule index. The first schedule is 2.'}}
+
+
+@main.command('Print a specific schedule.', **schedule_params)
+def cmd_showschedule(args: ScheduleArgs):
+    # Display starts at 2, maps to 0-based index
+    configidx = args.n - 2
+    configlist = loadConfigList(RTC_CONFIGFILE)
+    if len(configlist) > configidx:
+        print("  ", describeConfigListEntry(configlist[configidx]))
+    else:
+        print("   Invalid Schedule")
+
+
+@main.command('Remove schedule n. First schedule is 2.', **schedule_params)
+def cmd_removeschedule(args: ScheduleArgs):
+    def usage():
+        print("""Usage: {0} REMOVESCHEDULE <N>
+        
+        Remove schedule <N> from the config file, where <N> is an integer.
+        
+        Example:
+
+            {0} REMOVESCHEDULE 2
+            
+        This will remove the first schedule.
+        """.format(argv[0]), file=stderr)
+        exit(1)
+
+    if len(argv) != 3:
+        usage()
+    elif not argv[2].isdigit():
+        print("Schedule must be an integer.", file=stderr)
+        usage()
+    else:
+        # Display starts at 2, maps to 0-based index
+        configidx = int(argv[2])-2
+        removeConfigEntry(RTC_CONFIGFILE, configidx)
+
+
+@main.command('Run the daemon.')
+def cmd_service():
+    syncSystemTime()
+    commandschedulelist = formCommandScheduleList(
+        loadConfigList(RTC_CONFIGFILE))
+    nextrtcalarmtime = setNextAlarm(
+        commandschedulelist, datetime.datetime.now())
+    serviceloop = True
+    while serviceloop == True:
         clearRTCAlarmFlag()
         clearRTCTimerFlag()
 
-    elif cmd == "GETRTCTIME":
-        print("RTC Time:", getRTCdatetime())
+        tmpcurrenttime = datetime.datetime.now()
+        if nextrtcalarmtime <= tmpcurrenttime:
+            # Update RTC Alarm to next iteration
+            nextrtcalarmtime = setNextAlarm(
+                commandschedulelist, nextrtcalarmtime)
+        elif len(getCommandForTime(commandschedulelist, tmpcurrenttime, "off")) > 0:
+            # Shutdown detected, issue command then end service loop
+            os.system("shutdown now -h")
+            serviceloop = False
+            # Don't break to sleep while command executes (prevents service to restart)
 
-    elif cmd == "UPDATERTCTIME":
-        setRTCdatetime(datetime.datetime.now())
-        print("RTC Time:", getRTCdatetime())
-
-    elif cmd == "GETSCHEDULELIST":
-        describeConfigList(RTC_CONFIGFILE)
-
-    elif cmd == "SHOWSCHEDULE":
-        if len(sys.argv) > 2:
-            if sys.argv[2].isdigit():
-                # Display starts at 2, maps to 0-based index
-                configidx = int(sys.argv[2])-2
-                configlist = loadConfigList(RTC_CONFIGFILE)
-                if len(configlist) > configidx:
-                    print ("  ",describeConfigListEntry(configlist[configidx]))
-                else:
-                    print("   Invalid Schedule")
-
-    elif cmd == "REMOVESCHEDULE":
-        if len(sys.argv) > 2:
-            if sys.argv[2].isdigit():
-                # Display starts at 2, maps to 0-based index
-                configidx = int(sys.argv[2])-2
-                removeConfigEntry(RTC_CONFIGFILE, configidx)
-
-    elif cmd == "SERVICE":
-        syncSystemTime()
-        commandschedulelist = formCommandScheduleList(loadConfigList(RTC_CONFIGFILE))
-        nextrtcalarmtime = setNextAlarm(commandschedulelist, datetime.datetime.now())
-        serviceloop = True
-        while serviceloop==True:
-            clearRTCAlarmFlag()
-            clearRTCTimerFlag()
-
-            tmpcurrenttime = datetime.datetime.now()
-            if nextrtcalarmtime <= tmpcurrenttime:
-                # Update RTC Alarm to next iteration
-                nextrtcalarmtime = setNextAlarm(commandschedulelist, nextrtcalarmtime)
-            elif len(getCommandForTime(commandschedulelist, tmpcurrenttime, "off")) > 0:
-                # Shutdown detected, issue command then end service loop
-                os.system("shutdown now -h")
-                serviceloop = False
-                # Don't break to sleep while command executes (prevents service to restart)
-            
-
-            time.sleep(60)
+        time.sleep(60)
 
 
-elif False:
+@main.command('Print the current system/RTC times and control registers.')
+def cmd_debug():
     print("System Time: ", datetime.datetime.now())
     print("RTC    Time: ", getRTCdatetime())
 

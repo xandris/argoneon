@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+echo "--------------------------"
+echo "Argon Configuration Tool"
+argononed --version
+echo "--------------------------"
+
+get_number () {
+    local curnumber
+    read curnumber
+    if [ -z "$curnumber" ]; then
+        echo "-2"
+        return
+    elif [[ $curnumber =~ ^[+-]?[0-9]+$ ]]; then
+        if [ $curnumber -lt 0 ]; then
+            echo "-1"
+            return
+        elif [ $curnumber -gt 100 ]; then
+            echo "-1"
+            return
+        fi    
+        echo $curnumber
+        return
+    fi
+    echo "-1"
+    return
+}
+
+
+mainloopflag=1
+while [ $mainloopflag -eq 1 ]; do
+    echo
+    echo "Choose Option:"
+    echo "  1. Configure IR"
+    echo "  2. Configure RTC and/or Schedule"
+    echo "  3. Uninstall"
+    echo ""
+    echo "  0. Exit"
+    echo -n "Enter Number (0-3):"
+    newmode=$( get_number )
+
+    case "$newmode" in
+    0)
+        echo "Thank you."
+        mainloopflag=0
+        ;;
+
+    1)
+        argon-irconfig
+        mainloopflag=0
+        ;;
+
+    2)
+        argon-rtcconfig
+        mainloopflag=0
+        ;;
+
+    3)
+        $uninstallscript
+        mainloopflag=0
+        ;;
+    esac
+done

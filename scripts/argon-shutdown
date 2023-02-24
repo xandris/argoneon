@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+pythonbin=/usr/bin/python3
+argononefanscript=/etc/argon/argononed.py
+argoneonrtcscript=/etc/argon/argoneond.py
+
+if [ ! -z "$1" ]; then
+	argoneond fanoff
+	if [ "$1" = "poweroff" ] || [ "$1" = "halt" ]; then
+		argoneond shutdown
+		argononed shutdown
+	fi
+fi

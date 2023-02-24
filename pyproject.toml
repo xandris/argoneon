@@ -1,0 +1,28 @@
+[project]
+name = "argoneon"
+version = "2013.1.16"
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "RPi.GPIO",
+    "smbus2",
+    "psutil"
+]
+
+[project.scripts]
+argoneond = "argoneon.eond:main"
+argononed = "argoneon.oned:main"
+argonstatus = "argoneon.status:main"
+argonirdecoder = "argoneon.irdecoder:main"
+
+[project.optional-dependencies]
+lirc = ["lirc"]
+
+[tool.autopep8]
+max_line_length = 120
+
+[build-system]
+requires = ["setuptools"]
+
+[tool.setuptools.package-data]
+argoneon = ["oled/*.bin"]

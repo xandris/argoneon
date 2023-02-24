@@ -1,0 +1,222 @@
+ioctl(3, TCGETS, 0x7ff5788570)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff57876b0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5786f90)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff57885e0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5788660)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff57877a0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(0, TCGETS, {c_iflag=ICRNL|IXON|IUTF8, c_oflag=NL0|CR0|TAB0|BS0|VT0|FF0|OPOST|ONLCR, c_cflag=B38400|CS8|CREAD, c_lflag=ISIG|ICANON|ECHO|ECHOE|ECHOK|IEXTEN|ECHOCTL|ECHOKE, ...}) = 0
+ioctl(0, TCGETS, {c_iflag=ICRNL|IXON|IUTF8, c_oflag=NL0|CR0|TAB0|BS0|VT0|FF0|OPOST|ONLCR, c_cflag=B38400|CS8|CREAD, c_lflag=ISIG|ICANON|ECHO|ECHOE|ECHOK|IEXTEN|ECHOCTL|ECHOKE, ...}) = 0
+ioctl(1, TCGETS, {c_iflag=ICRNL|IXON|IUTF8, c_oflag=NL0|CR0|TAB0|BS0|VT0|FF0|OPOST|ONLCR, c_cflag=B38400|CS8|CREAD, c_lflag=ISIG|ICANON|ECHO|ECHOE|ECHOK|IEXTEN|ECHOCTL|ECHOKE, ...}) = 0
+ioctl(1, TCGETS, {c_iflag=ICRNL|IXON|IUTF8, c_oflag=NL0|CR0|TAB0|BS0|VT0|FF0|OPOST|ONLCR, c_cflag=B38400|CS8|CREAD, c_lflag=ISIG|ICANON|ECHO|ECHOE|ECHOK|IEXTEN|ECHOCTL|ECHOKE, ...}) = 0
+ioctl(2, TCGETS, {c_iflag=ICRNL|IXON|IUTF8, c_oflag=NL0|CR0|TAB0|BS0|VT0|FF0|OPOST|ONLCR, c_cflag=B38400|CS8|CREAD, c_lflag=ISIG|ICANON|ECHO|ECHOE|ECHOK|IEXTEN|ECHOCTL|ECHOKE, ...}) = 0
+ioctl(2, TCGETS, {c_iflag=ICRNL|IXON|IUTF8, c_oflag=NL0|CR0|TAB0|BS0|VT0|FF0|OPOST|ONLCR, c_cflag=B38400|CS8|CREAD, c_lflag=ISIG|ICANON|ECHO|ECHOE|ECHOK|IEXTEN|ECHOCTL|ECHOKE, ...}) = 0
+ioctl(3, TCGETS, 0x7ff5788660)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff57877a0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff57868e0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff57868e0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff57868e0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5785a20)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff57877a0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5788430)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5787c10)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5787f80)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786a00)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5787df0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5788160)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5787df0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5788160)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5789590)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, FIOCLEX)                       = 0
+ioctl(3, TCGETS, 0x7ff5789f50)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5788970)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5788970)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5787ab0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5785d30)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5784e70)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5783fb0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5783fb0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5783fb0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5784e70)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, TCGETS, 0x7ff5785d30)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(3, GPIO_GET_CHIPINFO_IOCTL, {name="gpiochip0", label="pinctrl-bcm2711", lines=58}) = 0
+ioctl(4, GPIO_GET_CHIPINFO_IOCTL, {name="gpiochip1", label="raspberrypi-exp-gpio", lines=8}) = 0
+ioctl(3, GPIO_GET_CHIPINFO_IOCTL, {name="gpiochip0", label="pinctrl-bcm2711", lines=58}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=0} => {flags=0, name="ID_SDA", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=1} => {flags=0, name="ID_SCL", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=2} => {flags=0, name="SDA1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=3} => {flags=0, name="SCL1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=4} => {flags=GPIOLINE_FLAG_KERNEL, name="GPIO_GCLK", consumer="sysfs"}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=5} => {flags=0, name="GPIO5", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=6} => {flags=0, name="GPIO6", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=7} => {flags=0, name="SPI_CE1_N", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=8} => {flags=0, name="SPI_CE0_N", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=9} => {flags=0, name="SPI_MISO", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=10} => {flags=0, name="SPI_MOSI", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=11} => {flags=0, name="SPI_SCLK", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=12} => {flags=0, name="GPIO12", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=13} => {flags=0, name="GPIO13", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=14} => {flags=0, name="TXD1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=15} => {flags=0, name="RXD1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=16} => {flags=0, name="GPIO16", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=17} => {flags=0, name="GPIO17", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=18} => {flags=0, name="GPIO18", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=19} => {flags=0, name="GPIO19", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=20} => {flags=0, name="GPIO20", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=21} => {flags=0, name="GPIO21", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=22} => {flags=0, name="GPIO22", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=23} => {flags=0, name="GPIO23", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=24} => {flags=0, name="GPIO24", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=25} => {flags=0, name="GPIO25", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=26} => {flags=0, name="GPIO26", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=27} => {flags=0, name="GPIO27", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=28} => {flags=0, name="RGMII_MDIO", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=29} => {flags=0, name="RGMIO_MDC", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=30} => {flags=0, name="CTS0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=31} => {flags=0, name="RTS0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=32} => {flags=0, name="TXD0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=33} => {flags=0, name="RXD0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=34} => {flags=0, name="SD1_CLK", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=35} => {flags=0, name="SD1_CMD", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=36} => {flags=0, name="SD1_DATA0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=37} => {flags=0, name="SD1_DATA1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=38} => {flags=0, name="SD1_DATA2", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=39} => {flags=0, name="SD1_DATA3", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=40} => {flags=0, name="PWM0_MISO", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=41} => {flags=0, name="PWM1_MOSI", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=42} => {flags=GPIOLINE_FLAG_KERNEL|GPIOLINE_FLAG_IS_OUT, name="STATUS_LED_G_CLK", consumer="led0"}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=43} => {flags=0, name="SPIFLASH_CE_N", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=44} => {flags=0, name="SDA0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=45} => {flags=0, name="SCL0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=46} => {flags=0, name="RGMII_RXCLK", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=47} => {flags=0, name="RGMII_RXCTL", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=48} => {flags=0, name="RGMII_RXD0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=49} => {flags=0, name="RGMII_RXD1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=50} => {flags=0, name="RGMII_RXD2", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=51} => {flags=0, name="RGMII_RXD3", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=52} => {flags=0, name="RGMII_TXCLK", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=53} => {flags=0, name="RGMII_TXCTL", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=54} => {flags=0, name="RGMII_TXD0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=55} => {flags=0, name="RGMII_TXD1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=56} => {flags=0, name="RGMII_TXD2", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=57} => {flags=0, name="RGMII_TXD3", consumer=""}) = 0
+ioctl(3, GPIO_GET_CHIPINFO_IOCTL, {name="gpiochip0", label="pinctrl-bcm2711", lines=58}) = 0
+ioctl(4, GPIO_GET_CHIPINFO_IOCTL, {name="gpiochip1", label="raspberrypi-exp-gpio", lines=8}) = 0
+ioctl(3, GPIO_GET_CHIPINFO_IOCTL, {name="gpiochip0", label="pinctrl-bcm2711", lines=58}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=0} => {flags=0, name="ID_SDA", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=1} => {flags=0, name="ID_SCL", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=2} => {flags=0, name="SDA1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=3} => {flags=0, name="SCL1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=4} => {flags=GPIOLINE_FLAG_KERNEL, name="GPIO_GCLK", consumer="sysfs"}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=5} => {flags=0, name="GPIO5", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=6} => {flags=0, name="GPIO6", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=7} => {flags=0, name="SPI_CE1_N", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=8} => {flags=0, name="SPI_CE0_N", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=9} => {flags=0, name="SPI_MISO", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=10} => {flags=0, name="SPI_MOSI", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=11} => {flags=0, name="SPI_SCLK", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=12} => {flags=0, name="GPIO12", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=13} => {flags=0, name="GPIO13", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=14} => {flags=0, name="TXD1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=15} => {flags=0, name="RXD1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=16} => {flags=0, name="GPIO16", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=17} => {flags=0, name="GPIO17", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=18} => {flags=0, name="GPIO18", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=19} => {flags=0, name="GPIO19", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=20} => {flags=0, name="GPIO20", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=21} => {flags=0, name="GPIO21", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=22} => {flags=0, name="GPIO22", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=23} => {flags=0, name="GPIO23", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=24} => {flags=0, name="GPIO24", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=25} => {flags=0, name="GPIO25", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=26} => {flags=0, name="GPIO26", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=27} => {flags=0, name="GPIO27", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=28} => {flags=0, name="RGMII_MDIO", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=29} => {flags=0, name="RGMIO_MDC", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=30} => {flags=0, name="CTS0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=31} => {flags=0, name="RTS0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=32} => {flags=0, name="TXD0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=33} => {flags=0, name="RXD0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=34} => {flags=0, name="SD1_CLK", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=35} => {flags=0, name="SD1_CMD", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=36} => {flags=0, name="SD1_DATA0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=37} => {flags=0, name="SD1_DATA1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=38} => {flags=0, name="SD1_DATA2", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=39} => {flags=0, name="SD1_DATA3", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=40} => {flags=0, name="PWM0_MISO", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=41} => {flags=0, name="PWM1_MOSI", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=42} => {flags=GPIOLINE_FLAG_KERNEL|GPIOLINE_FLAG_IS_OUT, name="STATUS_LED_G_CLK", consumer="led0"}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=43} => {flags=0, name="SPIFLASH_CE_N", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=44} => {flags=0, name="SDA0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=45} => {flags=0, name="SCL0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=46} => {flags=0, name="RGMII_RXCLK", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=47} => {flags=0, name="RGMII_RXCTL", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=48} => {flags=0, name="RGMII_RXD0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=49} => {flags=0, name="RGMII_RXD1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=50} => {flags=0, name="RGMII_RXD2", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=51} => {flags=0, name="RGMII_RXD3", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=52} => {flags=0, name="RGMII_TXCLK", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=53} => {flags=0, name="RGMII_TXCTL", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=54} => {flags=0, name="RGMII_TXD0", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=55} => {flags=0, name="RGMII_TXD1", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=56} => {flags=0, name="RGMII_TXD2", consumer=""}) = 0
+ioctl(3, GPIO_GET_LINEINFO_IOCTL, {line_offset=57} => {flags=0, name="RGMII_TXD3", consumer=""}) = 0
+ioctl(4, TCGETS, 0x7ff5788970)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5787ab0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5785d30)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5785d30)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5784e70)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5783fb0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5785d30)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5787ab0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff57871b0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5787ab0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5788970)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5787ab0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5788970)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5787ab0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5785d30)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5787ab0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff57864d0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5785d30)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5784e70)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5783fb0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5784e70)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff57864d0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5785610)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5784750)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5785610)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5785610)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5784750)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5783890)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff57829d0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5784ef0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5788970)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5787ab0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5788970)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5787ab0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5788970)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5788970)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5787ab0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5786bf0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, TCGETS, 0x7ff5785d30)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(4, _IOC(_IOC_NONE, 0x7, 0x5, 0), 0x7ff5789130) = 0
+ioctl(5, TCGETS, 0x7ff5788970)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(5, _IOC(_IOC_NONE, 0x7, 0x5, 0), 0x7ff5788270) = 0
+ioctl(6, TCGETS, 0x7ff5789420)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(6, TCGETS, 0x7ff5789210)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(6, TCGETS, 0x7ff57890f0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(6, TCGETS, 0x7ff5788ee0)          = -1 ENOTTY (Inappropriate ioctl for device)
+ioctl(7, TCGETS, 0x7ff57887b0)          = -1 ENOTTY (Inappropriate ioctl for device)
++++ exited with 1 +++

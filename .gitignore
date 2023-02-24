@@ -1,1 +1,5 @@
 **/__pycache__
+/venv/
+*.sw[ponmlkj]
+.sw[ponmlkj]
+**/*.egg-info/

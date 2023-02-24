@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 #
 # Misc methods to retrieve system information.
 #
@@ -12,16 +10,17 @@ from pathlib import Path
 
 fanspeed = Path('/tmp/fanspeed.txt')
 
-def checkPermission():
+
+def check_permission():
     """
     Determine if the user can properly execute the script.  Must have sudo or be root
     """
-    if not ('SUDO_UID' in os.environ ) and os.geteuid() != 0:
+    if not ('SUDO_UID' in os.environ) and os.geteuid() != 0:
         return False
     return True
 
-#
-def argonsysinfo_getCurrentFanSpeed():
+
+def get_current_fan_speed():
     """ Get the current fanspeed of the system, by reading a file we have stored the speed in.
     This allows other applications for determine what the current fan speed is, as we cannot read
     (apparently) from the device when we set the speed.
@@ -33,8 +32,8 @@ def argonsysinfo_getCurrentFanSpeed():
     except ValueError:
         return None
 
-#
-def argonsysinfo_recordCurrentFanSpeed( theSpeed ):
+
+def record_current_fan_speed(theSpeed):
     """ Record the current fanspeed for external applications to use.
     """
     try:
@@ -42,11 +41,12 @@ def argonsysinfo_recordCurrentFanSpeed( theSpeed ):
     except:
         ...
 
-def argonsysinfo_listcpuusage(sleepsec = 1):
+
+def list_cpu_usage(sleepsec=1):
     outputlist = []
-    curusage_a = argonsysinfo_getcpuusagesnapshot()
+    curusage_a = get_cpu_usage_snapshot()
     time.sleep(sleepsec)
-    curusage_b = argonsysinfo_getcpuusagesnapshot()
+    curusage_b = get_cpu_usage_snapshot()
 
     for cpuname in curusage_a:
         if cpuname == "cpu":
@@ -59,7 +59,8 @@ def argonsysinfo_listcpuusage(sleepsec = 1):
             outputlist.append({"title": cpuname, "value": int(100*(total-idle)/(total))})
     return outputlist
 
-def argonsysinfo_getcpuusagesnapshot():
+
+def get_cpu_usage_snapshot():
     cpupercent = {}
     errorflag = False
     try:
@@ -73,7 +74,7 @@ def argonsysinfo_getcpuusagesnapshot():
             while temp.find("  ") >= 0:
                 temp = temp.replace("  ", " ")
             if len(temp) < 3:
-                cpuctr = cpuctr +1
+                cpuctr = cpuctr + 1
                 continue
 
             checkname = temp[0:3]
@@ -90,7 +91,7 @@ def argonsysinfo_getcpuusagesnapshot():
                     colctr = colctr + 1
                 if total > 0:
                     cpupercent[infolist[0]] = {"total": total, "idle": idle}
-            cpuctr = cpuctr +1
+            cpuctr = cpuctr + 1
 
         tempfp.close()
     except IOError:
@@ -98,7 +99,7 @@ def argonsysinfo_getcpuusagesnapshot():
     return cpupercent
 
 
-def argonsysinfo_liststoragetotal():
+def list_storage_total():
     outputlist = []
     ramtotal = 0
     errorflag = False
@@ -123,20 +124,21 @@ def argonsysinfo_liststoragetotal():
                     elif parttype[0:2] == "sd" or parttype[0:2] == "hd":
                         lastchar = infolist[3][-1]
                         if lastchar.isdigit() == False:
-                            outputlist.append({"title": infolist[3], "value": argonsysinfo_kbstr(int(infolist[2]))})
+                            outputlist.append({"title": infolist[3], "value": kb_str(int(infolist[2]))})
                     else:
                         # SD Cards
                         lastchar = infolist[3][-2]
                         if lastchar[0] != "p":
-                            outputlist.append({"title": infolist[3], "value": argonsysinfo_kbstr(int(infolist[2]))})
+                            outputlist.append({"title": infolist[3], "value": kb_str(int(infolist[2]))})
 
         tempfp.close()
-        #outputlist.append({"title": "ram", "value": argonsysinfo_kbstr(ramtotal)})
+        # outputlist.append({"title": "ram", "value": kbstr(ramtotal)})
     except IOError:
         errorflag = True
     return outputlist
 
-def argonsysinfo_getram():
+
+def get_ram():
     totalram = 0
     totalfree = 0
     tempfp = open("/proc/meminfo", "r")
@@ -159,13 +161,13 @@ def argonsysinfo_getram():
                 totalfree = totalfree + int(infolist[1])
     if totalram == 0:
         return "0%"
-    return [str(int(100*totalfree/totalram))+"%", str((totalram+512*1024)>>20)+"GB"]
+    return [str(int(100*totalfree/totalram))+"%", str((totalram+512*1024) >> 20)+"GB"]
 
 
-def argonsysinfo_getmaxhddtemp():
+def get_max_hdd_temp():
     maxtempval = 0
     try:
-        hddtempobj = argonsysinfo_gethddtemp()
+        hddtempobj = get_hdd_temp()
         for curdev in hddtempobj:
             if hddtempobj[curdev] > maxtempval:
                 maxtempval = hddtempobj[curdev]
@@ -173,7 +175,8 @@ def argonsysinfo_getmaxhddtemp():
     except:
         return maxtempval
 
-def argonsysinfo_getcputemp():
+
+def get_cpu_temp():
     try:
         tempfp = open("/sys/class/thermal/thermal_zone0/temp", "r")
         temp = tempfp.readline()
@@ -182,68 +185,70 @@ def argonsysinfo_getcputemp():
     except IOError:
         return 0
 
-def argonsysinfo_gethddtemp():
+
+def get_hdd_temp():
     outputobj = {}
     hddtempcmd = "/usr/sbin/smartctl"
-    #smartctl -d sat -A ${device} | grep 194 | awk -F" " '{print $10}'
+    # smartctl -d sat -A ${device} | grep 194 | awk -F" " '{print $10}'
 
     if os.path.exists(hddtempcmd):
         # try:
-            command = os.popen("lsblk | grep -e '0 disk' | awk '{print $1}'")
-            tmp = command.read()
-            command.close()
-            alllines = [l for l in tmp.split("\n") if l]
-            for curdev in alllines:
-                if curdev[0:2] == "sd" or curdev[0:2] == "hd":
-                    # command = os.popen(hddtempcmd+" -d sat -A /dev/"+curdev+" | grep 194 | awk '{print $10}' 2>&1")
-                    def getSmart(smartCmd):
-                        if not checkPermission() and not smartCmd.startswith("sudo"):
-                            smartCmd = "sudo " + smartCmd
-                        try:
-                            command = os.popen(smartCmd)
-                            smartctlOutRaw = command.read()
-                        except Exception as e:
-                            print (e)
-                        finally:
-                            command.close()
-                        if 'scsi error unsupported scsi opcode' in smartctlOutRaw:
-                            return None
-
-                        smartctlOut = [l for l in smartctlOutRaw.split('\n') if l]
-
-                        for smartAttr in ["194","190"]:
-                            try:
-                                line = [l for l in smartctlOut if l.startswith(smartAttr)][0]
-                                parts = [p for p in line.replace('\t',' ').split(' ') if p]
-                                tempval = float(parts[9])
-                                return tempval
-                            except IndexError:
-                                ## Smart Attr not found
-                                ...
-
-                        for smartAttr in ["Temperature:"]:
-                            try:
-                                line = [l for l in smartctlOut if l.startswith(smartAttr)][0]
-                                parts = [p for p in line.replace('\t',' ').split(' ') if p]
-                                tempval = float(parts[1])
-                                return tempval
-                            except IndexError:
-                                ## Smart attrbute not found
-                                ...
+        command = os.popen("lsblk | grep -e '0 disk' | awk '{print $1}'")
+        tmp = command.read()
+        command.close()
+        alllines = [l for l in tmp.split("\n") if l]
+        for curdev in alllines:
+            if curdev[0:2] == "sd" or curdev[0:2] == "hd":
+                # command = os.popen(hddtempcmd+" -d sat -A /dev/"+curdev+" | grep 194 | awk '{print $10}' 2>&1")
+                def getSmart(smartCmd):
+                    if not check_permission() and not smartCmd.startswith("sudo"):
+                        smartCmd = "sudo " + smartCmd
+                    try:
+                        command = os.popen(smartCmd)
+                        smartctlOutRaw = command.read()
+                    except Exception as e:
+                        print(e)
+                    finally:
+                        command.close()
+                    if 'scsi error unsupported scsi opcode' in smartctlOutRaw:
                         return None
-                    theTemp = getSmart(f"{hddtempcmd} -d sat -n standby,0 -A /dev/{curdev}")
+
+                    smartctlOut = [l for l in smartctlOutRaw.split('\n') if l]
+
+                    for smartAttr in ["194", "190"]:
+                        try:
+                            line = [l for l in smartctlOut if l.startswith(smartAttr)][0]
+                            parts = [p for p in line.replace('\t', ' ').split(' ') if p]
+                            tempval = float(parts[9])
+                            return tempval
+                        except IndexError:
+                            # Smart Attr not found
+                            ...
+
+                    for smartAttr in ["Temperature:"]:
+                        try:
+                            line = [l for l in smartctlOut if l.startswith(smartAttr)][0]
+                            parts = [p for p in line.replace('\t', ' ').split(' ') if p]
+                            tempval = float(parts[1])
+                            return tempval
+                        except IndexError:
+                            # Smart attrbute not found
+                            ...
+                    return None
+                theTemp = getSmart(f"{hddtempcmd} -d sat -n standby,0 -A /dev/{curdev}")
+                if theTemp:
+                    outputobj[curdev] = theTemp
+                else:
+                    theTemp = getSmart(f"{hddtempcmd} -n standby,0 -A /dev/{curdev}")
                     if theTemp:
                         outputobj[curdev] = theTemp
-                    else: 
-                        theTemp = getSmart(f"{hddtempcmd} -n standby,0 -A /dev/{curdev}")
-                        if theTemp:
-                            outputobj[curdev] = theTemp
     return outputobj
 
-def argonsysinfo_getip():
+
+def get_ip():
     ipaddr = ""
     st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try: 
+    try:
         # Connect to nonexistent device
         st.connect(('254.255.255.255', 1))
         ipaddr = st.getsockname()[0]
@@ -253,20 +258,23 @@ def argonsysinfo_getip():
         st.close()
     return ipaddr
 
-def get_ip_addresses( family ):
+
+def get_ip_addresses(family):
     for interface, snics in psutil.net_if_addrs().items():
         if interface != "lo" and not interface.startswith("br"):
             for snic in snics:
                 if snic.family == family:
-                    yield( interface, snic.address )
+                    yield (interface, snic.address)
 
-def argonsysinfo_getipList():
+
+def get_ip_list():
     iplist = []
-    iplist = list(get_ip_addresses( socket.AF_INET ))
+    iplist = list(get_ip_addresses(socket.AF_INET))
 
     return iplist
 
-def argonsysinfo_getrootdev():
+
+def get_root_dev():
     command = os.popen('mount')
     tmp = command.read()
     command.close()
@@ -284,16 +292,17 @@ def argonsysinfo_getrootdev():
                 return infolist[0]
     return ""
 
-def argonsysinfo_listhddusage():
+
+def list_hdd_usage():
     outputobj = {}
-    raidlist = argonsysinfo_listraid()
+    raidlist = list_raid()
     raiddevlist = []
     raidctr = 0
     while raidctr < len(raidlist['raidlist']):
         raiddevlist.append(raidlist['raidlist'][raidctr]['title'])
         raidctr = raidctr + 1
 
-    rootdev = argonsysinfo_getrootdev()
+    rootdev = get_root_dev()
 
     command = os.popen('df')
     tmp = command.read()
@@ -331,33 +340,34 @@ def argonsysinfo_listhddusage():
             if curdev in raidlist['hddlist']:
                 continue
             elif curdev not in raiddevlist and not mapper:
-              if curdev[0:2] == "sd" or curdev[0:2] == "hd":
-                  curdev = curdev[0:-1]
-              else:
-                  curdev = curdev[0:-2]
-                  
-            percent=infolist[4].split("%")[0]
+                if curdev[0:2] == "sd" or curdev[0:2] == "hd":
+                    curdev = curdev[0:-1]
+                else:
+                    curdev = curdev[0:-2]
+
+            percent = infolist[4].split("%")[0]
             if curdev not in outputobj:
-                outputobj[curdev] = {"used":0, "total":0, "percent":0}
-                if  mapper:
+                outputobj[curdev] = {"used": 0, "total": 0, "percent": 0}
+                if mapper:
                     outputobj[curdev]["mapper"] = mapper
 
-            outputobj[curdev]["used"]         += int(infolist[2])
-            outputobj[curdev]["total"]        += int(infolist[1])
-            outputobj[curdev]["percent"]      += int(percent)
+            outputobj[curdev]["used"] += int(infolist[2])
+            outputobj[curdev]["total"] += int(infolist[1])
+            outputobj[curdev]["percent"] += int(percent)
 
     return outputobj
 
-def argonsysinfo_kbstr(kbval, wholenumbers = True):
+
+def kb_str(kbval, wholenumbers=True):
     remainder = 0
     suffixidx = 0
     suffixlist = ["KB", "MB", "GB", "TB"]
     while kbval > 1023 and suffixidx < len(suffixlist):
         remainder = kbval & 1023
-        kbval  = kbval >> 10
+        kbval = kbval >> 10
         suffixidx = suffixidx + 1
 
-    #return str(kbval)+"."+str(remainder) + suffixlist[suffixidx]
+    # return str(kbval)+"."+str(remainder) + suffixlist[suffixidx]
     remainderstr = ""
     if kbval < 100 and wholenumbers == False:
         remainder = int((remainder+50)/100)
@@ -367,7 +377,8 @@ def argonsysinfo_kbstr(kbval, wholenumbers = True):
         kbval = kbval + 1
     return str(kbval)+remainderstr + suffixlist[suffixidx]
 
-def argonsysinfo_listraid():
+
+def list_raid():
     hddlist = []
     outputlist = []
     # cat /proc/mdstat
@@ -401,7 +412,7 @@ def argonsysinfo_listraid():
                             tmpdevname = tmpdevname[0:tmpidx]
                         hddlist.append(tmpdevname)
                         hddctr = hddctr + 1
-                    devdetail = argonsysinfo_getraiddetail(devname)
+                    devdetail = get_raid_detail(devname)
                     outputlist.append({"title": devname, "value": raidtype, "info": devdetail})
 
         tempfp.close()
@@ -412,7 +423,7 @@ def argonsysinfo_listraid():
     return {"raidlist": outputlist, "hddlist": hddlist}
 
 
-def argonsysinfo_getraiddetail(devname):
+def get_raid_detail(devname):
     state = ""
     raidtype = ""
     size = 0
@@ -423,8 +434,8 @@ def argonsysinfo_getraiddetail(devname):
     failed = 0
     spare = 0
     resync = ""
-    hddlist =[]
-    if not checkPermission():
+    hddlist = []
+    if not check_permission():
         command = os.popen('sudo mdadm -D /dev/'+devname)
     else:
         command = os.popen('mdadm -D /dev/'+devname)
@@ -471,21 +482,20 @@ def argonsysinfo_getraiddetail(devname):
             infolist = temp.split(" ")
             if len(infolist) == 7:
                 hddlist.append(infolist[6])
-    return {"state": state, "raidtype": raidtype, "size": int(size), "used": int(used), "devices": int(total), "active": int(active), "working": int(working), "failed": int(failed), "spare": int(spare), "resync": resync, "hddlist":hddlist}
+    return {"state": state, "raidtype": raidtype, "size": int(size), "used": int(used), "devices": int(total), "active": int(active), "working": int(working), "failed": int(failed), "spare": int(spare), "resync": resync, "hddlist": hddlist}
 
-def argonsysinfo_diskusagedetail( disk,mapper : str = None ):
+
+def disk_usage_detail(disk, mapper: str = None):
     readsector = 0
     writesector = 0
-    discardsector = 0
 
     if mapper:
         this = mapper
     else:
         this = disk
-    command = os.popen( "cat /sys/block/" + this + "/stat" )
-    tmp = command.read()
-    command.close()
-    tmp.replace('\t',' ')
+
+    tmp = Path('/sys/block', this, 'stat').read_text()
+    tmp.replace('\t', ' ')
     tmp = tmp.strip()
     while tmp.find("  ") >= 0:
         tmp = tmp.replace("  ", " ")
@@ -494,34 +504,36 @@ def argonsysinfo_diskusagedetail( disk,mapper : str = None ):
         readsector = data[2]
         writesector = data[6]
 
-    return {"disk":disk, "readsector":int(readsector), "writesector":int(writesector)}
+    return {"disk": disk, "readsector": int(readsector), "writesector": int(writesector)}
 
-def argonsysinfo_diskusage():
+
+def disk_usage():
     usage = []
-    hddlist = argonsysinfo_listhddusage()
+    hddlist = list_hdd_usage()
     for disk in hddlist:
-        parms = {"disk" : disk}
+        parms = {"disk": disk}
         if "mapper" in hddlist[disk]:
             parms["mapper"] = hddlist[disk]["mapper"]
-        temp = argonsysinfo_diskusagedetail( **parms )
-        usage.append( temp )
+        temp = disk_usage_detail(**parms)
+        usage.append(temp)
 
     return usage
 
-def argonsysinfo_truncateFloat( value, dp ):
+
+def truncate_float(value, dp):
     """ make sure the value passed in has no more decimal places than the
     passed in (dp) number of places.
     """
-    value *= pow( 10, dp )
-    value = round( value )
-    value /= pow( 10, dp )
+    value *= pow(10, dp)
+    value = round(value)
+    value /= pow(10, dp)
     return value
 
-def argonsysinfo_convertCtoF( rawTemp, dp ):
+
+def convert_c_to_f(rawTemp, dp):
     """ Convert a raw temperature in degrees C to degrees F, and make sure the
     value is truncated to the specified number of decimal places
     """
     rawTemp = (32 + (rawTemp * 9)/5)
-    rawTemp = argonsysinfo_truncateFloat( rawTemp, dp )
-    return rawTemp;
-
+    rawTemp = truncate_float(rawTemp, dp)
+    return rawTemp

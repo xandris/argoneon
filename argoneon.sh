@@ -197,73 +197,73 @@ sudo touch $configscript
 # To ensure we can write the following lines
 sudo chmod 666 $configscript
 
-echo '#!/bin/bash' >> $configscript
+#!/bin/bash' >> $configscript
 
-echo 'echo "--------------------------"' >> $configscript
-echo 'echo "Argon Configuration Tool"' >> $configscript
-echo "$versioninfoscript simple" >> $configscript
-echo 'echo "--------------------------"' >> $configscript
+echo "--------------------------"
+echo "Argon Configuration Tool"
+$versioninfoscript simple
+echo "--------------------------"
 
-echo 'get_number () {' >> $configscript
-echo '    read curnumber' >> $configscript
-echo '    if [ -z "$curnumber" ]' >> $configscript
-echo '    then' >> $configscript
-echo '        echo "-2"' >> $configscript
-echo '        return' >> $configscript
-echo '    elif [[ $curnumber =~ ^[+-]?[0-9]+$ ]]' >> $configscript
-echo '    then' >> $configscript
-echo '        if [ $curnumber -lt 0 ]' >> $configscript
-echo '        then' >> $configscript
-echo '            echo "-1"' >> $configscript
-echo '            return' >> $configscript
-echo '        elif [ $curnumber -gt 100 ]' >> $configscript
-echo '        then' >> $configscript
-echo '            echo "-1"' >> $configscript
-echo '            return' >> $configscript
-echo '        fi    ' >> $configscript
-echo '        echo $curnumber' >> $configscript
-echo '        return' >> $configscript
-echo '    fi' >> $configscript
-echo '    echo "-1"' >> $configscript
-echo '    return' >> $configscript
-echo '}' >> $configscript
-echo '' >> $configscript
-
-echo 'mainloopflag=1' >> $configscript
-echo 'while [ $mainloopflag -eq 1 ]' >> $configscript
-echo 'do' >> $configscript
-echo '    echo' >> $configscript
-echo '    echo "Choose Option:"' >> $configscript
-echo '    echo "  1. Configure IR"' >> $configscript
-echo '    echo "  2. Configure RTC and/or Schedule"' >> $configscript
-echo '    echo "  3. Uninstall"' >> $configscript
-echo '    echo ""' >> $configscript
-echo '    echo "  0. Exit"' >> $configscript
-echo '    echo -n "Enter Number (0-3):"' >> $configscript
-echo '    newmode=$( get_number )' >> $configscript
+get_number () {
+    read curnumber
+    if [ -z "$curnumber" ]
+    then
+        echo "-2"
+        return
+    elif [[ $curnumber =~ ^[+-]?[0-9]+$ ]]
+    then
+        if [ $curnumber -lt 0 ]
+        then
+            echo "-1"
+            return
+        elif [ $curnumber -gt 100 ]
+        then
+            echo "-1"
+            return
+        fi    
+        echo $curnumber
+        return
+    fi
+    echo "-1"
+    return
+}
 
 
-echo '    if [ $newmode -eq 0 ]' >> $configscript
-echo '    then' >> $configscript
-echo '        echo "Thank you."' >> $configscript
-echo '        mainloopflag=0' >> $configscript
+mainloopflag=1
+while [ $mainloopflag -eq 1 ]
+do
+    echo
+    echo "Choose Option:"
+    echo "  1. Configure IR"
+    echo "  2. Configure RTC and/or Schedule"
+    echo "  3. Uninstall"
+    echo ""
+    echo "  0. Exit"
+    echo -n "Enter Number (0-3):"
+    newmode=$( get_number )
 
-echo '    elif [ $newmode -eq 1 ]' >> $configscript
-echo '    then' >> $configscript
-echo "        $irconfigscript" >> $configscript
-echo '        mainloopflag=0' >> $configscript
 
-echo '    elif [ $newmode -eq 2 ]' >> $configscript
-echo '    then' >> $configscript
-echo "        $rtcconfigscript" >> $configscript
-echo '        mainloopflag=0' >> $configscript
+    if [ $newmode -eq 0 ]
+    then
+        echo "Thank you."
+        mainloopflag=0
 
-echo '    elif [ $newmode -eq 3 ]' >> $configscript
-echo '    then' >> $configscript
-echo "        $uninstallscript" >> $configscript
-echo '        mainloopflag=0' >> $configscript
-echo '    fi' >> $configscript
-echo 'done' >> $configscript
+    elif [ $newmode -eq 1 ]
+    then
+        $irconfigscript
+        mainloopflag=0
+
+    elif [ $newmode -eq 2 ]
+    then
+        $rtcconfigscript
+        mainloopflag=0
+
+    elif [ $newmode -eq 3 ]
+    then
+        $uninstallscript
+        mainloopflag=0
+    fi
+done
 
 sudo chmod 755 $configscript
 
