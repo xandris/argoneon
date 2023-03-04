@@ -16,17 +16,20 @@
 #  * recalbox: Runs as service via /etc/init.d/
 #
 
-import os
+import queue
 import time
+from asyncio import (AbstractEventLoop, CancelledError, Future, Queue,
+                     create_task, gather, get_running_loop, sleep)
 from os.path import join
-from queue import Queue
-from sys import argv, exit
-from threading import Thread
+from signal import SIGINT, SIGTERM
+from threading import Event, Thread
+from typing import Coroutine
 
 import RPi.GPIO as GPIO
 import smbus2 as smbus
 
-from . import logging as log, oled, sysinfo
+from . import logging as log
+from . import oled, sysinfo
 from .cli import Cli
 from .config import (CONFIG_DIR, loadCPUFanConfig, loadDebugMode,
                      loadHDDFanConfig, loadOLEDConfig, loadTempConfig)
@@ -63,10 +66,9 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIN_SHUTDOWN, GPIO.IN,  pull_up_down=GPIO.PUD_DOWN)
 
 
-def shutdown_check(writeq):
+def pulse_loop(pulses: Queue, loop: AbstractEventLoop):
     """
-    This function is the thread that monitors activity in our shutdown pin
-    The pulse width is measured, and the corresponding shell command will be issued
+    pulse_loop emits pulse times in centiseconds on a queue. Runs forever.
     """
     while True:
         pulsetime = 1
@@ -75,23 +77,38 @@ def shutdown_check(writeq):
         while GPIO.input(PIN_SHUTDOWN) == GPIO.HIGH:
             time.sleep(0.01)
             pulsetime += 1
-        if pulsetime >= 2 and pulsetime <= 3:
-            # Testing
-            # writeq.put("OLEDSWITCH")
-            writeq.put("OLEDSTOP")
-            os.system("reboot")
-        elif pulsetime >= 4 and pulsetime <= 5:
-            writeq.put("OLEDSTOP")
-            os.system("shutdown now -h")
-        elif pulsetime >= 6 and pulsetime <= 7:
-            writeq.put("OLEDSWITCH")
-
-#
-#
-#
+        loop.call_soon_threadsafe(pulses.put_nowait, pulsetime)
 
 
-def get_fanspeed(tempval: float, configlist: list[str]) -> int:
+async def shutdown_check(writeq: Queue):
+    """
+    This function is the thread that monitors activity in our shutdown pin
+    The pulse width is measured, and the corresponding shell command will be issued
+    """
+    loop = get_running_loop()
+    pulses = Queue(1)
+    Thread(target=pulse_loop, args=(pulses, loop), daemon=True).start()
+
+    try:
+        while True:
+            log.debug('shutdown_check: get pulse time')
+            pulsetime = await pulses.get()
+            log.debug('shutdown_check: got pulse time %d', pulsetime)
+            if pulsetime >= 2 and pulsetime <= 3:
+                await writeq.put("OLEDSTOP")
+                log.debug('os.system("reboot")')
+                break
+            elif pulsetime >= 4 and pulsetime <= 5:
+                await writeq.put("OLEDSTOP")
+                log.debug('os.system("shutdown now -h")')
+                break
+            elif pulsetime >= 6 and pulsetime <= 7:
+                await writeq.put("OLEDSWITCH")
+    finally:
+        log.debug('shutdown_check finally')
+
+
+def get_fanspeed(tempval: float, configlist: dict[str, str]) -> int:
     """
     This function converts the corresponding fanspeed for the given temperature the
     configutation data is a list of strings in the form "<temperature>:<speed>"
@@ -114,14 +131,14 @@ def get_fanspeed(tempval: float, configlist: list[str]) -> int:
 #
 
 def setFanOff():
-    setFanSpeed(overrideSpeed=0)
+    return setFanSpeed(overrideSpeed=0)
 
 
 def setFanFlatOut():
-    setFanSpeed(overrideSpeed=100)
+    return setFanSpeed(overrideSpeed=100)
 
 
-def setFanSpeed(overrideSpeed: int = None, instantaneous: bool = True):
+async def setFanSpeed(overrideSpeed: int = None, instantaneous: bool = True):
     """
     Set the fanspeed.  Support override (overrideSpeed) with a specific value, and 
     an instantaneous change.  Some hardware does not like the sudden change, it wants the
@@ -140,7 +157,7 @@ def setFanSpeed(overrideSpeed: int = None, instantaneous: bool = True):
                        )
         if newspeed < prevspeed and not instantaneous:
             # Pause 30s before speed reduction to prevent fluctuations
-            time.sleep(30)
+            await sleep(30)
 
     # Make sure the value is in 0-100 range
     newspeed = max([min([100, newspeed]), 0])
@@ -149,7 +166,7 @@ def setFanSpeed(overrideSpeed: int = None, instantaneous: bool = True):
             if newspeed > 0:
                 # Spin up to prevent issues on older units
                 bus.write_byte(ADDR_FAN, 100)
-                time.sleep(1)
+                await sleep(1)
             bus.write_byte(ADDR_FAN, int(newspeed))
             log.debug("Writing to fan port, speed %s", newspeed)
             sysinfo.record_current_fan_speed(newspeed)
@@ -159,21 +176,41 @@ def setFanSpeed(overrideSpeed: int = None, instantaneous: bool = True):
     return newspeed
 
 
-def temp_check():
+async def temp_check():
     """
     Main thread for processing the temperature check functonality.  We just try and set the fan speed once
     a minute.  However we do want to start with the fan *OFF*.
     """
-    setFanOff()
-    while True:
-        setFanSpeed(instantaneous=False)
-        time.sleep(60)
+    await setFanOff()
+    try:
+        while True:
+            await setFanSpeed(instantaneous=False)
+            await sleep(60)
+    except Exception as e:
+        log.debug('temp_check exception', e)
+        raise e
+    finally:
+        log.debug('temp_check finally')
+        await setFanOff()
 #
 # This function is the thread that updates OLED
 #
 
 
-def display_loop(readq):
+async def display_loop(readq: Queue):
+    try:
+        await _display_loop(readq)
+    except Exception as e:
+        log.debug('display_loop exception', e)
+        raise e
+    finally:
+        log.debug('display_loop finally')
+        oled.fill(0)
+        oled.reset()
+        oled.power(False)
+
+
+async def _display_loop(readq: Queue):
     weekdaynamelist = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     monthlist = ["JAN", "FEB", "MAR", "APR", "MAY",
                  "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
@@ -227,7 +264,7 @@ def display_loop(readq):
             screensaverctr = 0
 
             # Update screen info
-            screenid = screenid + screenjogflag
+            screenid = screenid + 1
             if screenid >= len(screenenabled):
                 screenid = 0
         prevscreen = curscreen
@@ -566,8 +603,8 @@ def display_loop(readq):
             timeoutcounter = 0
             while timeoutcounter < screenjogtime or screenjogtime == 0:
                 qdata = ""
-                if readq.empty() == False:
-                    qdata = readq.get()
+                if not readq.empty():
+                    qdata = await readq.get()
 
                 if qdata == "OLEDSWITCH":
                     # Trigger screen switch
@@ -593,7 +630,7 @@ def display_loop(readq):
                         # Use 1 sec sleep get CPU usage
                         cpuusagelist = sysinfo.list_cpu_usage(1)
                     else:
-                        time.sleep(1)
+                        await sleep(1)
 
                     timeoutcounter = timeoutcounter + 1
                     if timeoutcounter >= 60 and screensavermode == False:
@@ -628,26 +665,42 @@ def cmd_fanoff():
     # Turn off fan
     setFanOff()
     log.info("FANOFF requested via fanoff command of the argononed service")
-    if OLED_ENABLED == True:
+    if OLED_ENABLED:
         display_defaultimg()
 
 
 @main.command('Run the a daemon that controls the fan and the ambient display.')
-def cmd_service():
-    # Starts the power button and temperature monitor threads
+async def cmd_service():
+    """
+    Starts the power button and temperature monitor threads
+    """
+    log.info("argononed service version %s starting.", ARGON_VERSION)
+
+    async def drain_queue(q: Queue):
+        while True:
+            await q.get()
+
+    loop = get_running_loop()
+    ipcq = Queue(1)
+    shutdown_task = create_task(shutdown_check(ipcq))
+    other_tasks = gather(
+        temp_check(),
+        display_loop(ipcq) if OLED_ENABLED else drain_queue(ipcq)
+    )
+    for sig in (SIGINT, SIGTERM):
+        loop.add_signal_handler(sig, shutdown_task.cancel)
+
     try:
-        log.info("argononed service version %s starting.", ARGON_VERSION)
-        ipcq = Queue()
-        t1 = Thread(target=shutdown_check, args=(ipcq, ))
+        await shutdown_task
+    except CancelledError:
+        pass
 
-        t2 = Thread(target=temp_check)
-        if OLED_ENABLED == True:
-            t3 = Thread(target=display_loop, args=(ipcq, ))
+    other_tasks.cancel()
 
-        t1.start()
-        t2.start()
-        if OLED_ENABLED == True:
-            t3.start()
-        ipcq.join()
-    except:
-        GPIO.cleanup()
+    try:
+        await other_tasks
+    except CancelledError:
+        pass
+
+    GPIO.cleanup()
+    log.debug('cmd_service return')

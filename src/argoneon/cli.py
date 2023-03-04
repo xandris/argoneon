@@ -1,4 +1,6 @@
 from argparse import ArgumentParser, _SubParsersAction
+from asyncio import run
+from inspect import iscoroutine
 from typing import Any, Callable, Dict, Protocol, TypedDict
 
 from .version import ARGON_VERSION
@@ -49,6 +51,13 @@ class Cli(object):
             exit(1)
 
         if args.func.__code__.co_argcount == 0:
-            args.func()
+            ret = args.func()
         else:
-            args.func(args)
+            ret = args.func(args)
+
+        if iscoroutine(ret):
+            ret = run(ret, debug=True)
+
+        print('exit(', ret, ')')
+        exit(ret)
+
